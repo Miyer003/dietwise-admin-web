@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { ArrowDown, Odometer, User, Food, Medal, Cpu, ChatDotRound } from '@element-plus/icons-vue'
+import { ArrowDown } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -60,6 +60,7 @@ const authStore = useAuthStore()
 const menuItems = computed(() => [
   { path: '/dashboard', title: '数据看板', icon: 'Odometer' },
   { path: '/users', title: '用户管理', icon: 'User' },
+  { path: '/records', title: '饮食记录', icon: 'Document' },
   { path: '/foods', title: '食物库', icon: 'Food' },
   { path: '/badges', title: '成就徽章', icon: 'Medal' },
   { path: '/ai-monitor', title: 'AI监控', icon: 'Cpu' },

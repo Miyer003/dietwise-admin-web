@@ -4,19 +4,37 @@
       <template #header>
         <div class="card-header">
           <span>用户管理</span>
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索手机号/昵称"
-            style="width: 250px"
-            clearable
-            @keyup.enter="handleSearch"
-          >
-            <template #append>
-              <el-button @click="handleSearch">
-                <el-icon><Search /></el-icon>
-              </el-button>
-            </template>
-          </el-input>
+          <div class="header-right">
+            <el-date-picker
+              v-model="activeDate"
+              type="date"
+              placeholder="选择日期查活跃用户"
+              value-format="YYYY-MM-DD"
+              style="width: 180px"
+              clearable
+              @change="handleActiveDateChange"
+            />
+            <el-button 
+              type="primary" 
+              @click="showActiveUsers"
+              :disabled="!activeDate"
+            >
+              查询活跃用户
+            </el-button>
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索手机号/昵称"
+              style="width: 250px"
+              clearable
+              @keyup.enter="handleSearch"
+            >
+              <template #append>
+                <el-button @click="handleSearch">
+                  <el-icon><Search /></el-icon>
+                </el-button>
+              </template>
+            </el-input>
+          </div>
         </div>
       </template>
 
@@ -113,15 +131,77 @@
         <el-button @click="detailVisible = false">关闭</el-button>
       </template>
     </el-dialog>
+
+    <!-- 活跃用户弹窗 -->
+    <el-dialog v-model="activeUsersVisible" :title="activeDate ? activeDate + ' 活跃用户' : '活跃用户'" width="800px">
+      <div v-if="activeDate" class="active-users-header">
+        <el-tag type="success" size="large">共 {{ activeUsersTotal }} 位活跃用户</el-tag>
+        <el-button text @click="loadActiveUsers">
+          <el-icon><Refresh /></el-icon>
+          刷新
+        </el-button>
+      </div>
+      <el-table :data="activeUsersList" v-loading="activeUsersLoading" stripe>
+        <el-table-column type="index" label="#" width="60" />
+        <el-table-column label="用户信息" min-width="200">
+          <template #default="{ row }">
+            <div class="user-cell">
+              <span class="user-avatar">{{ row.avatarEmoji || '😊' }}</span>
+              <div class="user-info">
+                <div class="nickname">{{ row.nickname || '未设置昵称' }}</div>
+                <div class="phone">{{ row.phone }}</div>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="todayRecords" label="该日记录数" width="120" align="center">
+          <template #default="{ row }">
+            <el-tag type="warning">{{ row.todayRecords || 0 }} 条</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lastLoginAt" label="最后登录" width="160">
+          <template #default="{ row }">
+            {{ formatDate(row.lastLoginAt) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="createdAt" label="注册时间" width="160">
+          <template #default="{ row }">
+            {{ formatDate(row.createdAt) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="100" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="showDetail(row)">详情</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="activeUsersPage"
+          v-model:page-size="activeUsersPageSize"
+          :total="activeUsersTotal"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @change="loadActiveUsers"
+        />
+      </div>
+      <template #footer>
+        <el-button @click="activeUsersVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import { Search, Refresh } from '@element-plus/icons-vue'
 import { getUserList, getUserDetail, updateUserStatus, type UserItem, type UserDetail } from '@/api/users'
+import request from '@/utils/request'
 import dayjs from 'dayjs'
+
+const route = useRoute()
 
 const loading = ref(false)
 const userList = ref<UserItem[]>([])
@@ -132,6 +212,15 @@ const searchKeyword = ref('')
 
 const detailVisible = ref(false)
 const userDetail = ref<UserDetail | null>(null)
+
+// 活跃用户相关
+const activeDate = ref('')
+const activeUsersVisible = ref(false)
+const activeUsersList = ref<any[]>([])
+const activeUsersTotal = ref(0)
+const activeUsersPage = ref(1)
+const activeUsersPageSize = ref(20)
+const activeUsersLoading = ref(false)
 
 const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
@@ -185,8 +274,52 @@ const handleUnban = async (row: UserItem) => {
   }
 }
 
+const handleActiveDateChange = (val: string) => {
+  if (val) {
+    activeDate.value = val
+  }
+}
+
+const showActiveUsers = () => {
+  if (!activeDate.value) {
+    ElMessage.warning('请先选择日期')
+    return
+  }
+  activeUsersPage.value = 1
+  activeUsersVisible.value = true
+  loadActiveUsers()
+}
+
+const loadActiveUsers = async () => {
+  activeUsersLoading.value = true
+  try {
+    const res: any = await request.get('/admin/users/active-by-date', {
+      params: {
+        date: activeDate.value,
+        page: activeUsersPage.value,
+        limit: activeUsersPageSize.value,
+      }
+    })
+    const data = res.data || res
+    activeUsersList.value = data.items || []
+    activeUsersTotal.value = data.total || 0
+  } catch (error) {
+    ElMessage.error('加载活跃用户失败')
+  } finally {
+    activeUsersLoading.value = false
+  }
+}
+
 onMounted(() => {
   loadData()
+  
+  // 检查路由参数，如果有 activeDate 则自动打开活跃用户弹窗
+  const queryDate = route.query.activeDate as string
+  if (queryDate) {
+    activeDate.value = queryDate
+    activeUsersVisible.value = true
+    loadActiveUsers()
+  }
 })
 </script>
 
@@ -195,6 +328,19 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.active-users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .user-cell {

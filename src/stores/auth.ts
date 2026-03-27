@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+
 import { ElMessage } from 'element-plus'
 import { adminLogin, getAdminInfo } from '@/api/auth'
 
@@ -38,9 +38,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       
       // 响应格式: {code: 0, message: 'success', data: {accessToken, refreshToken, user}}
-      if (res.code === 0 && res.data) {
-        // 后端返回 camelCase: accessToken，前端可能需要转换成 access_token
-        const accessToken = res.data.accessToken || res.data.access_token
+      if ((res as any).code === 0 && res.data) {
+        // 后端返回 camelCase: accessToken
+        const accessToken = (res.data as any).accessToken
         const user = res.data.user
         if (!accessToken) {
           ElMessage.error('登录失败：未获取到 token')
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
         return true
       }
       
-      ElMessage.error(res.message || '登录失败')
+      ElMessage.error((res as any).message || '登录失败')
       return false
     } catch (error: any) {
       ElMessage.error(error.message || '登录失败')
@@ -73,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchUserInfo = async () => {
     try {
       const res = await getAdminInfo()
-      if (res.code === 0 && res.data) {
+      if ((res as any).code === 0 && res.data) {
         userInfo.value = res.data
         return true
       }

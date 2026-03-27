@@ -45,6 +45,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'AI监控', icon: 'Cpu' },
       },
       {
+        path: 'records',
+        name: 'Records',
+        component: () => import('@/views/records/index.vue'),
+        meta: { title: '饮食记录', icon: 'Document' },
+      },
+      {
         path: 'feedbacks',
         name: 'Feedbacks',
         component: () => import('@/views/feedbacks/index.vue'),
@@ -64,7 +70,7 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
   
   // 公开页面直接放行

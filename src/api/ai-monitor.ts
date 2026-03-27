@@ -54,3 +54,28 @@ export const getAILogs = (params?: {
 }) => {
   return request.get<{ total: number; items: AILogItem[] }>('/admin/ai-monitor/logs', { params })
 }
+
+export interface ModelStat {
+  modelName: string
+  provider: string
+  calls: string
+  cost: string
+  inputTokens: string
+  outputTokens: string
+}
+
+export interface AITrendItem {
+  date: string
+  calls: number
+  cost: number
+  successCalls: number
+  failCalls: number
+}
+
+export const getAIStatsByModel = (params?: { startDate?: string; endDate?: string }) => {
+  return request.get<ModelStat[]>('/admin/ai-monitor/models', { params })
+}
+
+export const getAIUsageTrend = (params?: { startDate?: string; endDate?: string }) => {
+  return request.get<AITrendItem[]>('/admin/ai-monitor/trend', { params })
+}
