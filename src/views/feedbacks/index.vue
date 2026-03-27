@@ -141,8 +141,18 @@ const currentFeedback = ref<FeedbackItem | null>(null)
 const replyContent = ref('')
 const submitting = ref(false)
 
+// 格式化日期（后端已返回北京时间字符串，直接截取显示）
 const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY-MM-DD HH:mm')
+  if (!date || date === '-') return '-'
+  // 后端返回的已经是北京时间格式：'2026-03-26 01:34:22'
+  // 直接截取前16位显示：'2026-03-26 01:34'
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)) {
+    return date.slice(0, 16)
+  }
+  // 兼容其他格式
+  const d = dayjs(date)
+  if (!d.isValid()) return '-'
+  return d.format('YYYY-MM-DD HH:mm')
 }
 
 const getTypeLabel = (type: string) => {
@@ -200,7 +210,8 @@ const handleSubmitReply = async () => {
   
   submitting.value = true
   try {
-    await replyFeedback(currentFeedback.value!.id, replyContent.value)
+    // 回复时自动将状态更新为 resolved
+    await replyFeedback(currentFeedback.value!.id, replyContent.value, 'resolved')
     ElMessage.success('回复成功')
     replyVisible.value = false
     loadData()

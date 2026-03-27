@@ -92,6 +92,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import dayjs from 'dayjs'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, PieChart, BarChart } from 'echarts/charts'
@@ -176,7 +177,8 @@ const userTrendOption = ref({
     type: 'category', 
     data: [] as string[],
     axisLabel: {
-      color: '#909399'
+      color: '#909399',
+      formatter: (value: string) => dayjs(value).format('MM-DD')
     }
   },
   yAxis: { 
@@ -266,7 +268,8 @@ const aiTrendOption = ref({
     type: 'category', 
     data: [] as string[],
     axisLabel: {
-      color: '#909399'
+      color: '#909399',
+      formatter: (value: string) => dayjs(value).format('MM-DD')
     }
   },
   yAxis: [

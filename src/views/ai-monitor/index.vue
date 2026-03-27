@@ -307,7 +307,7 @@ const trendOption = ref({
   xAxis: {
     type: 'category',
     data: [] as string[],
-    axisLabel: { formatter: (value: string) => dayjs(value).add(8, 'hour').format('MM-DD') }
+    axisLabel: { formatter: (value: string) => dayjs(value).format('MM-DD') }
   },
   yAxis: [
     { type: 'value', name: '调用次数', position: 'left' },
@@ -454,12 +454,47 @@ const loadData = async () => {
 
 const updateTrendChart = () => {
   const dates = trendData.value.map(d => d.date)
-  const successCalls = trendData.value.map(d => d.successCalls)
-  const failCalls = trendData.value.map(d => d.failCalls)
+  
+  // 根据趋势类型设置不同的数据
+  if (trendType.value === 'calls') {
+    // 调用量 - 显示成功和失败的堆叠柱状图
+    trendOption.value.yAxis[0].name = '调用次数'
+    trendOption.value.yAxis[0].show = true
+    trendOption.value.yAxis[1].show = false
+    trendOption.value.series[0].type = 'bar'
+    trendOption.value.series[1].type = 'bar'
+    trendOption.value.series[0].stack = 'total'
+    trendOption.value.series[1].stack = 'total'
+    trendOption.value.series[0].data = trendData.value.map(d => d.successCalls)
+    trendOption.value.series[1].data = trendData.value.map(d => d.failCalls)
+    trendOption.value.legend.data = ['成功', '失败']
+  } else if (trendType.value === 'cost') {
+    // 费用 - 显示费用折线图
+    trendOption.value.yAxis[0].name = '费用(元)'
+    trendOption.value.yAxis[0].show = true
+    trendOption.value.yAxis[1].show = false
+    trendOption.value.series[0].type = 'line'
+    trendOption.value.series[1].type = 'line'
+    trendOption.value.series[0].stack = ''
+    trendOption.value.series[1].stack = ''
+    trendOption.value.series[0].data = trendData.value.map(d => d.cost)
+    trendOption.value.series[1].data = [] // 费用不显示失败系列
+    trendOption.value.legend.data = ['费用']
+  } else if (trendType.value === 'success') {
+    // 成功率 - 显示成功率折线图
+    trendOption.value.yAxis[0].name = '成功率(%)'
+    trendOption.value.yAxis[0].show = true
+    trendOption.value.yAxis[1].show = false
+    trendOption.value.series[0].type = 'line'
+    trendOption.value.series[1].type = 'line'
+    trendOption.value.series[0].stack = ''
+    trendOption.value.series[1].stack = ''
+    trendOption.value.series[0].data = trendData.value.map(d => d.successRate)
+    trendOption.value.series[1].data = [] // 成功率不显示失败系列
+    trendOption.value.legend.data = ['成功率']
+  }
   
   trendOption.value.xAxis.data = dates
-  trendOption.value.series[0].data = successCalls
-  trendOption.value.series[1].data = failCalls
 }
 
 const loadLogs = async () => {
@@ -482,14 +517,19 @@ const resetDate = () => {
   loadData()
 }
 
-// 格式化为北京时间（东八区）
+// 格式化为北京时间（后端已返回北京时间字符串，直接截取显示）
 const formatDate = (date: string | Date) => {
   if (!date) return '-'
-  // 统一使用UTC模式解析，然后转东八区
+  const dateStr = typeof date === 'string' ? date : date.toString()
+  // 后端返回的已经是北京时间格式：'2026-03-26 01:34:22'
+  // 截取 MM-DD HH:mm:ss 格式
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+    return dateStr.slice(5)  // 从第5位开始截取：03-26 01:34:22
+  }
+  // 兼容其他格式
   const d = dayjs(date)
   if (!d.isValid()) return '-'
-  // 加8小时转换为北京时间
-  return d.add(8, 'hour').format('MM-DD HH:mm:ss')
+  return d.format('MM-DD HH:mm:ss')
 }
 
 const formatNumber = (num: number | string) => {

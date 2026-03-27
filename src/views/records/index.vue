@@ -170,13 +170,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import dayjs from 'dayjs'
-
-const router = useRouter()
 
 // 筛选表单
 const filterForm = reactive({
@@ -234,9 +231,18 @@ const getInputMethodType = (method: string) => {
   return map[method] || ''
 }
 
+// 格式化日期时间（后端已返回北京时间字符串，直接截取显示）
 const formatDateTime = (date: string) => {
-  if (!date) return '-'
-  return dayjs(date).add(8, 'hour').format('MM-DD HH:mm')
+  if (!date || date === '-') return '-'
+  // 后端返回的已经是北京时间格式：'2026-03-26 01:34:22'
+  // 截取 MM-DD HH:mm 格式
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)) {
+    return date.slice(5, 16)  // 从第5位开始截取 16位：03-26 01:34
+  }
+  // 兼容其他格式
+  const d = dayjs(date)
+  if (!d.isValid()) return '-'
+  return d.format('MM-DD HH:mm')
 }
 
 const loadData = async () => {

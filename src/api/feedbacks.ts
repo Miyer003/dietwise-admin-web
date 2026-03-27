@@ -23,6 +23,6 @@ export const getFeedbackDetail = (id: string) => {
   return request.get<FeedbackItem>(`/admin/feedbacks/${id}`)
 }
 
-export const replyFeedback = (id: string, adminReply: string) => {
-  return request.patch(`/admin/feedbacks/${id}`, { adminReply })
+export const replyFeedback = (id: string, adminReply: string, status?: string) => {
+  return request.patch(`/admin/feedbacks/${id}`, { adminReply, status })
 }

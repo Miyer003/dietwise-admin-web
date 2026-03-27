@@ -60,3 +60,29 @@ export const getUserAchievements = (id: string) => {
 export const updateUserStatus = (id: string, status: string) => {
   return request.patch(`/admin/users/${id}/status`, { status })
 }
+
+export interface ActiveUserItem {
+  id: string
+  phone: string
+  nickname: string
+  avatarEmoji: string
+  createdAt: string
+  lastLoginAt: string
+  todayRecords: number
+}
+
+export interface ActiveUsersResult {
+  total: number
+  page: number
+  limit: number
+  items: ActiveUserItem[]
+}
+
+export const getActiveUsersByDate = (
+  date: string,
+  params?: { page?: number; limit?: number }
+) => {
+  return request.get<ActiveUsersResult>('/admin/users/active-by-date', {
+    params: { date, ...params },
+  })
+}

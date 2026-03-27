@@ -197,8 +197,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
-import { getUserList, getUserDetail, updateUserStatus, type UserItem, type UserDetail } from '@/api/users'
-import request from '@/utils/request'
+import { getUserList, getUserDetail, updateUserStatus, getActiveUsersByDate, type UserItem, type UserDetail, type ActiveUserItem } from '@/api/users'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -216,14 +215,24 @@ const userDetail = ref<UserDetail | null>(null)
 // 活跃用户相关
 const activeDate = ref('')
 const activeUsersVisible = ref(false)
-const activeUsersList = ref<any[]>([])
+const activeUsersList = ref<ActiveUserItem[]>([])
 const activeUsersTotal = ref(0)
 const activeUsersPage = ref(1)
 const activeUsersPageSize = ref(20)
 const activeUsersLoading = ref(false)
 
+// 格式化日期（后端已返回北京时间字符串，直接截取显示）
 const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY-MM-DD HH:mm')
+  if (!date || date === '-') return '-'
+  // 后端返回的已经是北京时间格式：'2026-03-26 01:34:22'
+  // 直接截取前16位显示：'2026-03-26 01:34'
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)) {
+    return date.slice(0, 16)
+  }
+  // 兼容其他格式
+  const d = dayjs(date)
+  if (!d.isValid()) return '-'
+  return d.format('YYYY-MM-DD HH:mm')
 }
 
 const loadData = async () => {
@@ -293,17 +302,13 @@ const showActiveUsers = () => {
 const loadActiveUsers = async () => {
   activeUsersLoading.value = true
   try {
-    const res: any = await request.get('/admin/users/active-by-date', {
-      params: {
-        date: activeDate.value,
-        page: activeUsersPage.value,
-        limit: activeUsersPageSize.value,
-      }
+    const res = await getActiveUsersByDate(activeDate.value, {
+      page: activeUsersPage.value,
+      limit: activeUsersPageSize.value,
     })
-    const data = res.data || res
-    activeUsersList.value = data.items || []
-    activeUsersTotal.value = data.total || 0
-  } catch (error) {
+    activeUsersList.value = res.data.items
+    activeUsersTotal.value = res.data.total
+  } catch (error: any) {
     ElMessage.error('加载活跃用户失败')
   } finally {
     activeUsersLoading.value = false
@@ -317,8 +322,10 @@ onMounted(() => {
   const queryDate = route.query.activeDate as string
   if (queryDate) {
     activeDate.value = queryDate
-    activeUsersVisible.value = true
-    loadActiveUsers()
+    setTimeout(() => {
+      activeUsersVisible.value = true
+      loadActiveUsers()
+    }, 100)
   }
 })
 </script>
