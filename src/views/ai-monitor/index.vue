@@ -128,7 +128,7 @@
         </el-table-column>
         <el-table-column label="平均耗时" width="120">
           <template #default="{ row }">
-            {{ row.avgLatency || '-' }} ms
+            {{ row.avgLatency ? Math.round(parseFloat(row.avgLatency as any)) + ' ms' : '-' }}
           </template>
         </el-table-column>
       </el-table>

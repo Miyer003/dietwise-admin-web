@@ -62,6 +62,7 @@ export interface ModelStat {
   cost: string
   inputTokens: string
   outputTokens: string
+  avgLatency?: string | number
 }
 
 export interface AITrendItem {
