@@ -10,9 +10,6 @@
         :default-active="route.path"
         router
         class="menu"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
       >
         <el-menu-item v-for="item in menuItems" :key="item.path" :index="item.path">
           <el-icon>
@@ -80,18 +77,20 @@ const handleCommand = (command: string) => {
 }
 
 .sidebar {
-  background-color: #304156;
+  background-color: var(--dw-bg);
+  border-right: 1px solid var(--dw-border);
 }
 
 .logo {
-  height: 60px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-  border-bottom: 1px solid #1f2d3d;
+  color: var(--dw-text);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--dw-border);
 }
 
 .logo-icon {
@@ -101,11 +100,13 @@ const handleCommand = (command: string) => {
 
 .menu {
   border-right: none;
+  background-color: transparent;
 }
 
 .header {
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  height: 70px;
+  background-color: var(--dw-bg);
+  border-bottom: 1px solid var(--dw-border);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -120,7 +121,12 @@ const handleCommand = (command: string) => {
   display: flex;
   align-items: center;
   cursor: pointer;
-  color: #606266;
+  color: var(--dw-text-secondary);
+  transition: var(--dw-transition);
+}
+
+.user-info:hover {
+  color: var(--dw-text);
 }
 
 .user-avatar {
@@ -133,8 +139,8 @@ const handleCommand = (command: string) => {
 }
 
 .main {
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: var(--dw-bg);
+  padding: 30px;
   overflow-y: auto;
 }
 </style>

@@ -366,7 +366,7 @@ onMounted(() => {
 
 .user-info .phone {
   font-size: 12px;
-  color: #999;
+  color: var(--dw-text-secondary);
   margin-top: 4px;
 }
 

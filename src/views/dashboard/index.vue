@@ -11,7 +11,7 @@
         >
           <div class="stat-content">
             <div class="stat-icon" :style="{ backgroundColor: item.color }">
-              <el-icon size="24" color="#fff">
+              <el-icon size="24" :color="dwColors.bg">
                 <component :is="item.icon" />
               </el-icon>
             </div>
@@ -106,6 +106,7 @@ import VChart from 'vue-echarts'
 import { getOverview, getUserGrowthTrend, getAIUsageTrend } from '@/api/dashboard'
 import { getAIStatsByProvider, getAIStatsByFunction, getAIStatsByModel } from '@/api/ai-monitor'
 import type { OverviewData } from '@/api/dashboard'
+import { colorPalette, baseChartOption, createAreaStyle, dwColors } from '@/utils/chartTheme'
 
 const router = useRouter()
 
@@ -125,16 +126,15 @@ const userTrendDays = ref(30)
 const aiTrendDays = ref(30)
 
 const statCards = computed(() => [
-  { key: 'users', label: '总用户数', value: overview.value?.totalUsers || 0, icon: 'User', color: '#409EFF', route: '/users' },
-  { key: 'active', label: '今日活跃', value: overview.value?.todayActiveUsers || 0, icon: 'TrendCharts', color: '#67C23A', route: '/users/today-active' },
-  { key: 'records', label: '今日记录', value: overview.value?.todayRecords || 0, icon: 'Food', color: '#E6A23C', route: '/records' },
-  { key: 'ai', label: '今日AI调用', value: overview.value?.todayAICalls || 0, icon: 'Cpu', color: '#F56C6C', route: '/ai-monitor' },
+  { key: 'users', label: '总用户数', value: overview.value?.totalUsers || 0, icon: 'User', color: colorPalette[0], route: '/users' },
+  { key: 'active', label: '今日活跃', value: overview.value?.todayActiveUsers || 0, icon: 'TrendCharts', color: colorPalette[1], route: '/users/today-active' },
+  { key: 'records', label: '今日记录', value: overview.value?.todayRecords || 0, icon: 'Food', color: colorPalette[3], route: '/records' },
+  { key: 'ai', label: '今日AI调用', value: overview.value?.todayAICalls || 0, icon: 'Cpu', color: colorPalette[4], route: '/ai-monitor' },
 ])
 
 // 处理卡片点击
 const handleCardClick = (item: any) => {
   if (item.key === 'active') {
-    // 今日活跃跳转到用户管理并打开今日活跃弹窗
     const today = dayjs().format('YYYY-MM-DD')
     router.push({
       path: '/users',
@@ -147,8 +147,13 @@ const handleCardClick = (item: any) => {
 
 // 用户趋势图配置
 const userTrendOption = ref({
+  ...baseChartOption,
   tooltip: { 
     trigger: 'axis',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: function(params: any[]) {
       let result = `<strong>${params[0].axisValue}</strong><br/>`
       params.forEach(item => {
@@ -163,7 +168,7 @@ const userTrendOption = ref({
     itemGap: 20,
     textStyle: {
       fontSize: 12,
-      color: '#606266'
+      color: dwColors.highlight
     }
   },
   grid: {
@@ -177,68 +182,58 @@ const userTrendOption = ref({
     type: 'category', 
     data: [] as string[],
     axisLabel: {
-      color: '#909399',
+      color: dwColors.highlight,
       formatter: (value: string) => dayjs(value).format('MM-DD')
-    }
+    },
+    axisLine: { lineStyle: { color: dwColors.interactive } }
   },
   yAxis: { 
     type: 'value',
     name: '用户数（人）',
     nameTextStyle: {
-      color: '#909399',
+      color: dwColors.highlight,
       padding: [0, 0, 0, 40]
     },
     axisLabel: {
-      color: '#909399'
+      color: dwColors.highlight
     },
     splitLine: {
       lineStyle: {
-        color: '#E4E7ED',
+        color: dwColors.interactive,
         type: 'dashed'
       }
     }
   },
-  color: ['#409EFF', '#67C23A'],
+  color: [colorPalette[0], colorPalette[1]],
   series: [
     { 
       name: '新增用户', 
       type: 'line', 
       data: [] as number[], 
       smooth: true,
-      areaStyle: {
-        color: {
-          type: 'linear',
-          x: 0, y: 0, x2: 0, y2: 1,
-          colorStops: [
-            { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
-          ]
-        }
-      }
+      lineStyle: { width: 2 },
+      areaStyle: createAreaStyle(colorPalette[0], 0.3, 0.05)
     },
     { 
       name: '活跃用户', 
       type: 'line', 
       data: [] as number[], 
       smooth: true,
-      areaStyle: {
-        color: {
-          type: 'linear',
-          x: 0, y: 0, x2: 0, y2: 1,
-          colorStops: [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-          ]
-        }
-      }
+      lineStyle: { width: 2 },
+      areaStyle: createAreaStyle(colorPalette[1], 0.3, 0.05)
     },
   ],
 })
 
 // AI趋势图配置
 const aiTrendOption = ref({
+  ...baseChartOption,
   tooltip: { 
     trigger: 'axis',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: function(params: any[]) {
       let result = `<strong>${params[0].axisValue}</strong><br/>`
       params.forEach(item => {
@@ -254,7 +249,7 @@ const aiTrendOption = ref({
     itemGap: 20,
     textStyle: {
       fontSize: 12,
-      color: '#606266'
+      color: dwColors.highlight
     }
   },
   grid: {
@@ -268,9 +263,10 @@ const aiTrendOption = ref({
     type: 'category', 
     data: [] as string[],
     axisLabel: {
-      color: '#909399',
+      color: dwColors.highlight,
       formatter: (value: string) => dayjs(value).format('MM-DD')
-    }
+    },
+    axisLine: { lineStyle: { color: dwColors.interactive } }
   },
   yAxis: [
     { 
@@ -278,15 +274,15 @@ const aiTrendOption = ref({
       name: '调用次数（次）',
       position: 'left',
       nameTextStyle: {
-        color: '#909399',
+        color: dwColors.highlight,
         padding: [0, 0, 0, 20]
       },
       axisLabel: {
-        color: '#909399'
+        color: dwColors.highlight
       },
       splitLine: {
         lineStyle: {
-          color: '#E4E7ED',
+          color: dwColors.interactive,
           type: 'dashed'
         }
       }
@@ -296,11 +292,11 @@ const aiTrendOption = ref({
       name: '费用（元）',
       position: 'right',
       nameTextStyle: {
-        color: '#909399',
+        color: dwColors.highlight,
         padding: [0, 20, 0, 0]
       },
       axisLabel: {
-        color: '#909399',
+        color: dwColors.highlight,
         formatter: '¥{value}'
       },
       splitLine: {
@@ -308,14 +304,14 @@ const aiTrendOption = ref({
       }
     }
   ],
-  color: ['#E6A23C', '#F56C6C'],
+  color: [colorPalette[0], colorPalette[1]],
   series: [
     { 
       name: '调用次数', 
       type: 'bar', 
       data: [] as number[],
       itemStyle: {
-        borderRadius: [4, 4, 0, 0]
+        borderRadius: [2, 2, 0, 0]
       }
     },
     { 
@@ -325,18 +321,23 @@ const aiTrendOption = ref({
       data: [] as number[], 
       smooth: true,
       lineStyle: {
-        width: 3
+        width: 2
       },
       symbol: 'circle',
-      symbolSize: 8
+      symbolSize: 6
     },
   ],
 })
 
 // 服务商分布
 const providerPieOption = ref({
+  ...baseChartOption,
   tooltip: { 
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: function(params: any) {
       const nameMap: Record<string, string> = {
         'dashscope': '阿里灵积',
@@ -355,7 +356,7 @@ const providerPieOption = ref({
     itemGap: 20,
     textStyle: {
       fontSize: 13,
-      color: '#606266'
+      color: dwColors.highlight
     },
     formatter: function(name: string) {
       const nameMap: Record<string, string> = {
@@ -365,16 +366,16 @@ const providerPieOption = ref({
       return nameMap[name] || name
     }
   },
-  color: ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C'],
+  color: colorPalette,
   series: [{
     type: 'pie',
     radius: ['40%', '65%'],
     center: ['50%', '45%'],
     avoidLabelOverlap: false,
     itemStyle: {
-      borderRadius: 6,
-      borderColor: '#fff',
-      borderWidth: 2
+      borderRadius: 2,
+      borderColor: dwColors.bg,
+      borderWidth: 1
     },
     label: {
       show: false
@@ -384,12 +385,11 @@ const providerPieOption = ref({
         show: true,
         fontSize: 14,
         fontWeight: 'bold',
+        color: dwColors.text,
         formatter: '{b}\n{c}次\n({d}%)'
       },
       itemStyle: {
-        shadowBlur: 10,
-        shadowOffsetX: 0,
-        shadowColor: 'rgba(0, 0, 0, 0.5)'
+        shadowBlur: 0
       }
     },
     data: [] as { name: string; value: number }[],
@@ -398,8 +398,13 @@ const providerPieOption = ref({
 
 // 模型使用分布
 const modelPieOption = ref({
+  ...baseChartOption,
   tooltip: { 
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: function(params: any) {
       return `<strong>${params.name}</strong><br/>` +
              `${params.marker} 调用次数: <strong>${params.value}</strong> 次<br/>` +
@@ -414,23 +419,22 @@ const modelPieOption = ref({
     itemGap: 15,
     textStyle: {
       fontSize: 11,
-      color: '#606266'
+      color: dwColors.highlight
     },
     formatter: function(name: string) {
-      // 截断过长的模型名
       return name.length > 12 ? name.slice(0, 12) + '...' : name
     }
   },
-  color: ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#8E44AD', '#1ABC9C', '#34495E'],
+  color: colorPalette,
   series: [{
     type: 'pie',
     radius: ['35%', '60%'],
     center: ['50%', '42%'],
     avoidLabelOverlap: false,
     itemStyle: {
-      borderRadius: 6,
-      borderColor: '#fff',
-      borderWidth: 2
+      borderRadius: 2,
+      borderColor: dwColors.bg,
+      borderWidth: 1
     },
     label: {
       show: false
@@ -440,12 +444,11 @@ const modelPieOption = ref({
         show: true,
         fontSize: 12,
         fontWeight: 'bold',
+        color: dwColors.text,
         formatter: '{b}\n{c}次\n({d}%)'
       },
       itemStyle: {
-        shadowBlur: 10,
-        shadowOffsetX: 0,
-        shadowColor: 'rgba(0, 0, 0, 0.5)'
+        shadowBlur: 0
       }
     },
     data: [] as { name: string; value: number }[],
@@ -454,8 +457,13 @@ const modelPieOption = ref({
 
 // 功能分布
 const functionPieOption = ref({
+  ...baseChartOption,
   tooltip: { 
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: function(params: any) {
       const nameMap: Record<string, string> = {
         'NUTRITION_ANALYSIS': '营养分析',
@@ -477,7 +485,7 @@ const functionPieOption = ref({
     itemGap: 15,
     textStyle: {
       fontSize: 12,
-      color: '#606266'
+      color: dwColors.highlight
     },
     formatter: function(name: string) {
       const nameMap: Record<string, string> = {
@@ -490,16 +498,16 @@ const functionPieOption = ref({
       return nameMap[name] || name
     }
   },
-  color: ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399'],
+  color: colorPalette,
   series: [{
     type: 'pie',
     radius: ['40%', '65%'],
     center: ['50%', '45%'],
     avoidLabelOverlap: false,
     itemStyle: {
-      borderRadius: 6,
-      borderColor: '#fff',
-      borderWidth: 2
+      borderRadius: 2,
+      borderColor: dwColors.bg,
+      borderWidth: 1
     },
     label: {
       show: false
@@ -509,6 +517,7 @@ const functionPieOption = ref({
         show: true,
         fontSize: 13,
         fontWeight: 'bold',
+        color: dwColors.text,
         formatter: function(params: any) {
           const nameMap: Record<string, string> = {
             'NUTRITION_ANALYSIS': '营养分析',
@@ -522,9 +531,7 @@ const functionPieOption = ref({
         }
       },
       itemStyle: {
-        shadowBlur: 10,
-        shadowOffsetX: 0,
-        shadowColor: 'rgba(0, 0, 0, 0.5)'
+        shadowBlur: 0
       }
     },
     data: [] as { name: string; value: number }[],
@@ -562,10 +569,9 @@ const loadFunctionStats = async () => {
   const res = await getAIStatsByFunction()
   const data = (res as any).data || res
   if (Array.isArray(data)) {
-    // 按调用次数排序
     const sortedData = data.sort((a: any, b: any) => parseInt(b.calls) - parseInt(a.calls))
     functionPieOption.value.series[0].data = sortedData.map((item: any) => ({
-      name: item.functionType,  // 使用原始 functionType，tooltip 会转换
+      name: item.functionType,
       value: parseInt(item.calls),
     }))
   }
@@ -575,7 +581,6 @@ const loadModelStats = async () => {
   const res = await getAIStatsByModel()
   const data = (res as any).data || res
   if (Array.isArray(data)) {
-    // 按调用次数排序，取前7个
     const sortedData = data
       .sort((a: any, b: any) => parseInt(b.calls) - parseInt(a.calls))
       .slice(0, 7)
@@ -603,16 +608,16 @@ onMounted(() => {
 
 .stat-card {
   margin-bottom: 20px;
+  cursor: default;
 }
 
 .stat-card.clickable {
   cursor: pointer;
-  transition: all 0.3s;
 }
 
 .stat-card.clickable:hover {
+  border-color: var(--dw-accent);
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .stat-content {
@@ -621,9 +626,9 @@ onMounted(() => {
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -632,13 +637,14 @@ onMounted(() => {
 
 .stat-value {
   font-size: 24px;
-  font-weight: bold;
-  color: #303133;
+  font-weight: 300;
+  color: var(--dw-text);
+  letter-spacing: 1px;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: var(--dw-text-secondary);
   margin-top: 4px;
 }
 

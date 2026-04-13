@@ -105,6 +105,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBadgeList, getBadgeStats, createBadge, updateBadge, deleteBadge, toggleBadgeStatus, type BadgeItem, type BadgeStats } from '@/api/badges'
+import { chartColors } from '@/utils/chartTheme'
 
 const loading = ref(false)
 const badgeList = ref<BadgeItem[]>([])
@@ -121,7 +122,7 @@ const form = ref<Partial<BadgeItem>>({
   badgeName: '',
   badgeDesc: '',
   iconEmoji: '🏆',
-  iconColor: '#F59E0B',
+  iconColor: chartColors.primary,
   category: 'continuous',
   conditionType: '',
   conditionValue: 1,
@@ -170,7 +171,7 @@ const showAddDialog = () => {
     badgeName: '',
     badgeDesc: '',
     iconEmoji: '🏆',
-    iconColor: '#F59E0B',
+    iconColor: '#78716C',
     category: 'continuous',
     conditionType: '',
     conditionValue: 1,
@@ -257,20 +258,20 @@ onMounted(() => {
 }
 
 .badge-info .desc {
-  color: #666;
+  color: var(--dw-text-secondary);
   font-size: 14px;
   margin-bottom: 8px;
 }
 
 .badge-info .condition {
-  color: #409EFF;
+  color: var(--dw-accent);
   font-size: 13px;
   margin-bottom: 8px;
 }
 
 .badge-info .stats {
   font-size: 12px;
-  color: #999;
+  color: var(--dw-text-muted);
 }
 
 .badge-actions {
@@ -278,7 +279,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--dw-border);
 }
 
 .icon-select {

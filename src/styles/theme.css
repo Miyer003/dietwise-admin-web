@@ -1,0 +1,150 @@
+/**
+ * DietWise Admin Web - 雾中山林主题系统
+ * 基于 Element Plus CSS Variables 覆盖
+ * 所有 Token 集中于此，方便后续切换风格
+ */
+
+:root {
+  /* ============================================
+     核心色彩系统
+     ============================================ */
+  --dw-bg: #1C1917;
+  --dw-card: #292524;
+  --dw-interactive: #44403C;
+  --dw-accent: #78716C;
+  --dw-highlight: #A8A29E;
+  --dw-text: #F5F5F4;
+  --dw-text-secondary: #A8A29E;
+  --dw-text-muted: #78716C;
+  --dw-border: #44403C;
+
+  /* 圆角 */
+  --dw-radius-lg: 8px;
+  --dw-radius-md: 4px;
+  --dw-radius-sm: 2px;
+
+  /* 过渡 */
+  --dw-transition: all 0.3s ease;
+
+  /* ============================================
+     Element Plus 主题覆盖 - 主色
+     ============================================ */
+  --el-color-primary: #78716C;
+  --el-color-primary-light-3: #A8A29E;
+  --el-color-primary-light-5: #D6D3D1;
+  --el-color-primary-light-7: #E7E5E4;
+  --el-color-primary-light-8: #F5F5F4;
+  --el-color-primary-light-9: #44403C;
+  --el-color-primary-dark-2: #57514D;
+
+  /* 功能色（单色系映射） */
+  --el-color-success: #78716C;
+  --el-color-warning: #A8A29E;
+  --el-color-danger: #8B7355;
+  --el-color-info: #A8A29E;
+  --el-color-error: #8B7355;
+
+  /* ============================================
+     Element Plus 主题覆盖 - 背景与文字
+     ============================================ */
+  --el-bg-color: #292524;
+  --el-bg-color-page: #1C1917;
+  --el-bg-color-overlay: #292524;
+
+  --el-text-color-primary: #F5F5F4;
+  --el-text-color-regular: #F5F5F4;
+  --el-text-color-secondary: #A8A29E;
+  --el-text-color-placeholder: #78716C;
+  --el-text-color-disabled: #78716C;
+
+  --el-border-color: #44403C;
+  --el-border-color-light: #44403C;
+  --el-border-color-lighter: #44403C;
+  --el-border-color-extra-light: #44403C;
+  --el-border-color-hover: #78716C;
+
+  --el-fill-color: #292524;
+  --el-fill-color-light: #44403C;
+  --el-fill-color-lighter: #292524;
+  --el-fill-color-extra-light: #44403C;
+  --el-fill-color-blank: #292524;
+  --el-fill-color-dark: #1C1917;
+  --el-fill-color-darker: #1C1917;
+
+  /* 遮罩 */
+  --el-overlay-color: rgba(28, 25, 23, 0.8);
+  --el-overlay-color-light: rgba(28, 25, 23, 0.5);
+  --el-overlay-color-lighter: rgba(28, 25, 23, 0.3);
+
+  /* 禁用状态 */
+  --el-disabled-bg-color: #292524;
+  --el-disabled-text-color: #78716C;
+  --el-disabled-border-color: #44403C;
+
+  /* ============================================
+     Element Plus 组件级变量
+     ============================================ */
+  /* 按钮 */
+  --el-button-bg-color: #292524;
+  --el-button-text-color: #F5F5F4;
+  --el-button-border-color: #44403C;
+  --el-button-hover-bg-color: #44403C;
+  --el-button-hover-text-color: #F5F5F4;
+  --el-button-hover-border-color: #78716C;
+  --el-button-active-bg-color: #44403C;
+  --el-button-active-text-color: #F5F5F4;
+  --el-button-disabled-bg-color: #292524;
+  --el-button-disabled-text-color: #78716C;
+  --el-button-disabled-border-color: #44403C;
+
+  /* 输入框 */
+  --el-input-bg-color: #292524;
+  --el-input-text-color: #F5F5F4;
+  --el-input-border-color: #44403C;
+  --el-input-hover-border-color: #78716C;
+  --el-input-focus-border-color: #78716C;
+  --el-input-placeholder-color: #78716C;
+
+  /* 卡片 */
+  --el-card-bg-color: #292524;
+  --el-card-border-color: #44403C;
+
+  /* 菜单 */
+  --el-menu-bg-color: #1C1917;
+  --el-menu-text-color: #A8A29E;
+  --el-menu-hover-text-color: #F5F5F4;
+  --el-menu-active-color: #F5F5F4;
+  --el-menu-hover-bg-color: #44403C;
+
+  /* 表格 */
+  --el-table-bg-color: #292524;
+  --el-table-header-bg-color: #44403C;
+  --el-table-row-hover-bg-color: #44403C;
+  --el-table-border-color: #44403C;
+  --el-table-text-color: #F5F5F4;
+  --el-table-header-text-color: #F5F5F4;
+
+  /* 分页 */
+  --el-pagination-bg-color: #292524;
+  --el-pagination-button-bg-color: #292524;
+  --el-pagination-hover-color: #F5F5F4;
+
+  /* 对话框 */
+  --el-dialog-bg-color: #292524;
+  --el-dialog-box-shadow: none;
+
+  /* 下拉菜单/选择器 */
+  --el-select-dropdown-bg-color: #292524;
+  --el-select-option-hover-background: #44403C;
+
+  /* 标签页 */
+  --el-tabs-header-bg-color: #292524;
+
+  /* 消息提示 */
+  --el-message-bg-color: #292524;
+  --el-message-border-color: #44403C;
+
+  /* 滚动条 */
+  --el-scrollbar-bg-color: #44403C;
+  --el-scrollbar-hover-bg-color: #78716C;
+}

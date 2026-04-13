@@ -97,12 +97,15 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: var(--dw-bg);
 }
 
 .login-box {
   width: 400px;
   padding: 20px;
+  background-color: var(--dw-card);
+  border: 1px solid var(--dw-border);
+  border-radius: var(--dw-radius-lg);
 }
 
 .login-header {
@@ -118,19 +121,21 @@ const handleLogin = async () => {
 
 .login-header h1 {
   font-size: 24px;
-  color: #333;
+  color: var(--dw-text);
   margin-bottom: 8px;
+  font-weight: 300;
+  letter-spacing: 2px;
 }
 
 .login-header p {
-  color: #999;
+  color: var(--dw-text-secondary);
   font-size: 14px;
 }
 
 .login-tips {
   margin-top: 20px;
   text-align: center;
-  color: #999;
+  color: var(--dw-text-muted);
   font-size: 12px;
 }
 </style>

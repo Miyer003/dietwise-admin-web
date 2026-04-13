@@ -77,14 +77,14 @@
         <el-table-column prop="recordDate" label="日期" width="120" />
         <el-table-column prop="mealType" label="餐次" width="100">
           <template #default="{ row }">
-            <el-tag :type="getMealTypeType(row.mealType)" size="small">
+            <el-tag :type="getMealTypeType(row.mealType)" size="small" class="dw-tag">
               {{ getMealTypeLabel(row.mealType) }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="inputMethod" label="录入方式" width="100">
           <template #default="{ row }">
-            <el-tag :type="getInputMethodType(row.inputMethod)" size="small" effect="plain">
+            <el-tag :type="getInputMethodType(row.inputMethod)" size="small" effect="plain" class="dw-tag">
               {{ getInputMethodLabel(row.inputMethod) }}
             </el-tag>
           </template>
@@ -139,13 +139,13 @@
           </div>
           <div class="info-item">
             <span class="info-label">餐次：</span>
-            <el-tag :type="getMealTypeType(currentRecord.mealType)" size="small">
+            <el-tag :type="getMealTypeType(currentRecord.mealType)" size="small" class="dw-tag">
               {{ getMealTypeLabel(currentRecord.mealType) }}
             </el-tag>
           </div>
           <div class="info-item">
             <span class="info-label">录入方式：</span>
-            <el-tag :type="getInputMethodType(currentRecord.inputMethod)" size="small" effect="plain">
+            <el-tag :type="getInputMethodType(currentRecord.inputMethod)" size="small" effect="plain" class="dw-tag">
               {{ getInputMethodLabel(currentRecord.inputMethod) }}
             </el-tag>
           </div>
@@ -350,17 +350,23 @@ onMounted(() => {
 
 .user-nickname {
   font-size: 14px;
-  color: #303133;
+  color: var(--dw-text);
 }
 
 .user-phone {
   font-size: 12px;
-  color: #909399;
+  color: var(--dw-text-secondary);
 }
 
 .calorie {
-  color: #f56c6c;
+  color: var(--dw-highlight);
   font-weight: 500;
+}
+
+.dw-tag {
+  background-color: var(--dw-interactive) !important;
+  border-color: var(--dw-border) !important;
+  color: var(--dw-text) !important;
 }
 
 .detail-content {
@@ -370,8 +376,9 @@ onMounted(() => {
     gap: 16px;
     margin-bottom: 20px;
     padding: 16px;
-    background: #f5f7fa;
-    border-radius: 8px;
+    background: var(--dw-interactive);
+    border-radius: var(--dw-radius-lg);
+    border: 1px solid var(--dw-border);
   }
   
   .info-item {
@@ -381,12 +388,12 @@ onMounted(() => {
   }
   
   .info-label {
-    color: #909399;
+    color: var(--dw-text-secondary);
     font-size: 13px;
   }
   
   .info-value {
-    color: #303133;
+    color: var(--dw-text);
     font-size: 14px;
     font-weight: 500;
   }
@@ -394,7 +401,7 @@ onMounted(() => {
   .section-title {
     font-size: 14px;
     font-weight: 600;
-    color: #606266;
+    color: var(--dw-text-secondary);
     margin-bottom: 12px;
   }
 }

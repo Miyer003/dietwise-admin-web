@@ -96,7 +96,7 @@
         <el-table-column prop="modelName" label="模型" min-width="150">
           <template #default="{ row }">
             <div class="model-cell">
-              <el-tag size="small" :type="getProviderType(row.provider)">
+              <el-tag size="small" effect="plain" class="provider-tag">
                 {{ row.provider }}
               </el-tag>
               <span class="model-name">{{ row.modelName }}</span>
@@ -121,7 +121,6 @@
                 :percentage="getTokenPercentage(row)" 
                 :show-text="false"
                 :stroke-width="8"
-                :color="'#409EFF'"
               />
               <span class="token-text">输出: {{ formatNumber(row.outputTokens) }}</span>
             </div>
@@ -159,13 +158,13 @@
         </el-table-column>
         <el-table-column prop="functionType" label="功能" width="120">
           <template #default="{ row }">
-            <el-tag size="small" effect="plain">{{ formatFunctionType(row.functionType) }}</el-tag>
+            <el-tag size="small" effect="plain" class="function-tag">{{ formatFunctionType(row.functionType) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="modelName" label="模型" min-width="180">
           <template #default="{ row }">
             <div class="model-cell">
-              <el-tag size="small" :type="getProviderType(row.provider)">
+              <el-tag size="small" effect="plain" class="provider-tag">
                 {{ row.provider }}
               </el-tag>
               <span class="model-name">{{ row.modelName || '-' }}</span>
@@ -188,17 +187,17 @@
         </el-table-column>
         <el-table-column prop="latencyMs" label="耗时" width="90">
           <template #default="{ row }">
-            <el-tag size="small" :type="getLatencyType(row.latencyMs)">
+            <el-tag size="small" effect="plain" class="latency-tag">
               {{ row.latencyMs }}ms
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="success" label="状态" width="80" align="center">
           <template #default="{ row }">
-            <el-tag v-if="row.success" type="success" size="small" effect="dark">
+            <el-tag v-if="row.success" size="small" effect="plain" class="status-tag success">
               <el-icon><Check /></el-icon>
             </el-tag>
-            <el-tag v-else type="danger" size="small" effect="dark">
+            <el-tag v-else size="small" effect="plain" class="status-tag fail">
               <el-icon><Close /></el-icon>
             </el-tag>
           </template>
@@ -241,6 +240,7 @@ import {
   type AIStats,
   type ModelStat
 } from '@/api/ai-monitor'
+import { colorPalette, baseChartOption, createAreaStyle, dwColors } from '@/utils/chartTheme'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
@@ -277,21 +277,26 @@ const dateShortcuts = [
   { text: '最近30天', value: [dayjs().subtract(29, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')] },
 ]
 
-// 统计卡片
+// 统计卡片 - 使用雾中山林色系
 const statCards = computed(() => [
-  { key: 'calls', label: '总调用次数', value: formatNumber(stats.value?.totalCalls || 0), color: '#409EFF', bgColor: '#ecf5ff' },
-  { key: 'cost', label: '总费用(元)', value: `¥${(stats.value?.totalCost || 0).toFixed(2)}`, color: '#F56C6C', bgColor: '#fef0f0' },
-  { key: 'success', label: '成功次数', value: formatNumber(stats.value?.successCalls || 0), color: '#67C23A', bgColor: '#f0f9eb' },
-  { key: 'fail', label: '失败次数', value: formatNumber(stats.value?.failedCalls || 0), color: '#909399', bgColor: '#f4f4f5' },
-  { key: 'rate', label: '成功率', value: `${stats.value?.successRate?.toFixed(1) || 0}%`, color: '#E6A23C', bgColor: '#fdf6ec' },
-  { key: 'avg', label: '平均耗时', value: '245ms', color: '#8E44AD', bgColor: '#f5eef8' },
+  { key: 'calls', label: '总调用次数', value: formatNumber(stats.value?.totalCalls || 0), color: colorPalette[0], bgColor: 'rgba(120,113,108,0.15)' },
+  { key: 'cost', label: '总费用(元)', value: `¥${(stats.value?.totalCost || 0).toFixed(2)}`, color: colorPalette[1], bgColor: 'rgba(168,162,158,0.15)' },
+  { key: 'success', label: '成功次数', value: formatNumber(stats.value?.successCalls || 0), color: colorPalette[0], bgColor: 'rgba(120,113,108,0.15)' },
+  { key: 'fail', label: '失败次数', value: formatNumber(stats.value?.failedCalls || 0), color: colorPalette[4], bgColor: 'rgba(139,115,85,0.15)' },
+  { key: 'rate', label: '成功率', value: `${stats.value?.successRate?.toFixed(1) || 0}%`, color: colorPalette[2], bgColor: 'rgba(214,211,209,0.15)' },
+  { key: 'avg', label: '平均耗时', value: '245ms', color: colorPalette[3], bgColor: 'rgba(231,229,228,0.15)' },
 ])
 
 // 趋势图配置
 const trendOption = ref({
+  ...baseChartOption,
   tooltip: {
     trigger: 'axis',
     axisPointer: { type: 'cross' },
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: (params: any[]) => {
       const date = params[0].axisValue
       let result = `<strong>${date}</strong><br/>`
@@ -302,25 +307,55 @@ const trendOption = ref({
       return result
     }
   },
-  legend: { data: ['成功', '失败'], bottom: 0 },
-  grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
+  legend: { 
+    data: ['成功', '失败'], 
+    bottom: 0,
+    textStyle: { color: dwColors.highlight }
+  },
+  grid: { 
+    left: '3%', 
+    right: '4%', 
+    bottom: '15%', 
+    top: '10%', 
+    containLabel: true 
+  },
   xAxis: {
     type: 'category',
     data: [] as string[],
-    axisLabel: { formatter: (value: string) => dayjs(value).format('MM-DD') }
+    axisLabel: { 
+      formatter: (value: string) => dayjs(value).format('MM-DD'),
+      color: dwColors.highlight
+    },
+    axisLine: { lineStyle: { color: dwColors.interactive } }
   },
   yAxis: [
-    { type: 'value', name: '调用次数', position: 'left' },
-    { type: 'value', name: '费用(元)', position: 'right', show: false }
+    { 
+      type: 'value', 
+      name: '调用次数', 
+      position: 'left',
+      nameTextStyle: { color: dwColors.highlight },
+      axisLabel: { color: dwColors.highlight },
+      splitLine: { lineStyle: { color: dwColors.interactive, type: 'dashed' } }
+    },
+    { 
+      type: 'value', 
+      name: '费用(元)', 
+      position: 'right', 
+      show: false,
+      nameTextStyle: { color: dwColors.highlight },
+      axisLabel: { color: dwColors.highlight },
+      splitLine: { show: false }
+    }
   ],
   dataZoom: [{ type: 'inside', start: 0, end: 100 }],
+  color: [colorPalette[0], colorPalette[4]],
   series: [
     {
       name: '成功',
       type: 'bar',
       stack: 'total',
       data: [] as number[],
-      itemStyle: { color: '#67C23A', borderRadius: [4, 4, 0, 0] },
+      itemStyle: { borderRadius: [2, 2, 0, 0] },
       barWidth: '60%'
     },
     {
@@ -328,15 +363,20 @@ const trendOption = ref({
       type: 'bar',
       stack: 'total',
       data: [] as number[],
-      itemStyle: { color: '#F56C6C', borderRadius: [4, 4, 0, 0] },
+      itemStyle: { borderRadius: [2, 2, 0, 0] },
     }
   ]
 })
 
 // 模型分布饼图
 const modelPieOption = ref({
+  ...baseChartOption,
   tooltip: {
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: '{b}<br/>调用: {c}次<br/>占比: {d}%'
   },
   legend: { 
@@ -345,18 +385,29 @@ const modelPieOption = ref({
     bottom: 10, 
     left: 'center',
     itemGap: 10,
-    textStyle: { fontSize: 11 },
+    textStyle: { fontSize: 11, color: dwColors.highlight },
     formatter: (name: string) => name.length > 10 ? name.slice(0, 10) + '...' : name
   },
+  color: colorPalette,
   series: [{
     type: 'pie',
     radius: ['35%', '60%'],
     center: ['50%', '42%'],
     avoidLabelOverlap: false,
-    itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+    itemStyle: { 
+      borderRadius: 2, 
+      borderColor: dwColors.bg, 
+      borderWidth: 1 
+    },
     label: { show: false },
     emphasis: {
-      label: { show: true, fontSize: 12, fontWeight: 'bold', formatter: '{b}\n{c}次\n({d}%)' }
+      label: { 
+        show: true, 
+        fontSize: 12, 
+        fontWeight: 'bold', 
+        color: dwColors.text,
+        formatter: '{b}\n{c}次\n({d}%)' 
+      }
     },
     data: [] as { name: string; value: number }[]
   }]
@@ -364,18 +415,42 @@ const modelPieOption = ref({
 
 // 功能分布饼图
 const functionPieOption = ref({
+  ...baseChartOption,
   tooltip: {
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: '{b}<br/>调用: {c}次<br/>占比: {d}%'
   },
-  legend: { bottom: '5%', icon: 'circle' },
+  legend: { 
+    bottom: '5%', 
+    icon: 'circle',
+    textStyle: { color: dwColors.highlight }
+  },
+  color: colorPalette,
   series: [{
     type: 'pie',
-    radius: ['40%', '70%'],
-    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+    radius: ['40%', '65%'],
+    center: ['50%', '45%'],
+    avoidLabelOverlap: false,
+    itemStyle: { 
+      borderRadius: 2, 
+      borderColor: dwColors.bg, 
+      borderWidth: 1 
+    },
     label: {
-      show: true,
-      formatter: '{b}\n{c}次\n({d}%)'
+      show: false
+    },
+    emphasis: {
+      label: { 
+        show: true, 
+        fontSize: 12, 
+        fontWeight: 'bold', 
+        color: dwColors.text,
+        formatter: '{b}\n{c}次\n({d}%)' 
+      }
     },
     data: [] as { name: string; value: number }[]
   }]
@@ -383,19 +458,42 @@ const functionPieOption = ref({
 
 // 服务商分布饼图
 const providerPieOption = ref({
+  ...baseChartOption,
   tooltip: {
     trigger: 'item',
+    backgroundColor: dwColors.card,
+    borderColor: dwColors.interactive,
+    borderWidth: 1,
+    textStyle: { color: dwColors.text },
     formatter: '{b}<br/>调用: {c}次<br/>占比: {d}%'
   },
-  legend: { bottom: '5%', icon: 'circle' },
+  legend: { 
+    bottom: '5%', 
+    icon: 'circle',
+    textStyle: { color: dwColors.highlight }
+  },
+  color: colorPalette,
   series: [{
     type: 'pie',
-    radius: ['40%', '70%'],
-    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
-    color: ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C'],
+    radius: ['40%', '65%'],
+    center: ['50%', '45%'],
+    avoidLabelOverlap: false,
+    itemStyle: { 
+      borderRadius: 2, 
+      borderColor: dwColors.bg, 
+      borderWidth: 1 
+    },
     label: {
-      show: true,
-      formatter: '{b}\n{c}次'
+      show: false
+    },
+    emphasis: {
+      label: { 
+        show: true, 
+        fontSize: 12, 
+        fontWeight: 'bold', 
+        color: dwColors.text,
+        formatter: '{b}\n{c}次\n({d}%)' 
+      }
     },
     data: [] as { name: string; value: number }[]
   }]
@@ -468,30 +566,41 @@ const updateTrendChart = () => {
     trendOption.value.series[0].data = trendData.value.map(d => d.successCalls)
     trendOption.value.series[1].data = trendData.value.map(d => d.failCalls)
     trendOption.value.legend.data = ['成功', '失败']
+    trendOption.value.color = [colorPalette[0], colorPalette[4]]
+    trendOption.value.series[0].itemStyle = { borderRadius: [2, 2, 0, 0] }
+    trendOption.value.series[1].itemStyle = { borderRadius: [2, 2, 0, 0] }
   } else if (trendType.value === 'cost') {
     // 费用 - 显示费用折线图
     trendOption.value.yAxis[0].name = '费用(元)'
     trendOption.value.yAxis[0].show = true
     trendOption.value.yAxis[1].show = false
-    trendOption.value.series[0].type = 'line'
-    trendOption.value.series[1].type = 'line'
-    trendOption.value.series[0].stack = ''
-    trendOption.value.series[1].stack = ''
-    trendOption.value.series[0].data = trendData.value.map(d => d.cost)
-    trendOption.value.series[1].data = [] // 费用不显示失败系列
+    ;(trendOption.value.series[0] as any).type = 'line'
+    ;(trendOption.value.series[1] as any).type = 'line'
+    ;(trendOption.value.series[0] as any).stack = ''
+    ;(trendOption.value.series[1] as any).stack = ''
+    ;(trendOption.value.series[0] as any).data = trendData.value.map(d => d.cost)
+    ;(trendOption.value.series[1] as any).data = [] // 费用不显示失败系列
     trendOption.value.legend.data = ['费用']
+    trendOption.value.color = [colorPalette[0]]
+    ;(trendOption.value.series[0] as any).itemStyle = {}
+    ;(trendOption.value.series[0] as any).areaStyle = createAreaStyle(colorPalette[0], 0.3, 0.05)
+    delete (trendOption.value.series[1] as any).areaStyle
   } else if (trendType.value === 'success') {
     // 成功率 - 显示成功率折线图
     trendOption.value.yAxis[0].name = '成功率(%)'
     trendOption.value.yAxis[0].show = true
     trendOption.value.yAxis[1].show = false
-    trendOption.value.series[0].type = 'line'
-    trendOption.value.series[1].type = 'line'
-    trendOption.value.series[0].stack = ''
-    trendOption.value.series[1].stack = ''
-    trendOption.value.series[0].data = trendData.value.map(d => d.successRate)
-    trendOption.value.series[1].data = [] // 成功率不显示失败系列
+    ;(trendOption.value.series[0] as any).type = 'line'
+    ;(trendOption.value.series[1] as any).type = 'line'
+    ;(trendOption.value.series[0] as any).stack = ''
+    ;(trendOption.value.series[1] as any).stack = ''
+    ;(trendOption.value.series[0] as any).data = trendData.value.map(d => d.successRate)
+    ;(trendOption.value.series[1] as any).data = [] // 成功率不显示失败系列
     trendOption.value.legend.data = ['成功率']
+    trendOption.value.color = [colorPalette[0]]
+    ;(trendOption.value.series[0] as any).itemStyle = {}
+    ;(trendOption.value.series[0] as any).areaStyle = createAreaStyle(colorPalette[0], 0.3, 0.05)
+    delete (trendOption.value.series[1] as any).areaStyle
   }
   
   trendOption.value.xAxis.data = dates
@@ -510,6 +619,14 @@ const loadLogs = async () => {
   } catch (error) {
     console.error('加载日志失败:', error)
   }
+}
+
+const getTokenPercentage = (row: ModelStat) => {
+  const input = parseInt(row.inputTokens) || 0
+  const output = parseInt(row.outputTokens) || 0
+  const total = input + output
+  if (total === 0) return 0
+  return Math.round((input / total) * 100)
 }
 
 const resetDate = () => {
@@ -548,29 +665,6 @@ const formatFunctionType = (type: string) => {
   return map[type] || type
 }
 
-const getProviderType = (provider: string) => {
-  const map: Record<string, any> = {
-    DASHSCOPE: 'primary',
-    MOONSHOT: 'success',
-    OPENAI: 'warning',
-  }
-  return map[provider] || 'info'
-}
-
-const getLatencyType = (latency: number) => {
-  if (latency < 1000) return 'success'
-  if (latency < 3000) return 'warning'
-  return 'danger'
-}
-
-const getTokenPercentage = (row: ModelStat) => {
-  const input = parseInt(row.inputTokens) || 0
-  const output = parseInt(row.outputTokens) || 0
-  const total = input + output
-  if (total === 0) return 0
-  return Math.round((input / total) * 100)
-}
-
 onMounted(() => {
   // 默认最近7天
   dateRange.value = [
@@ -599,7 +693,7 @@ onMounted(() => {
 .stat-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -613,14 +707,15 @@ onMounted(() => {
 
 .stat-label {
   font-size: 13px;
-  color: #909399;
+  color: var(--dw-text-secondary);
   margin-bottom: 4px;
 }
 
 .stat-value {
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 300;
   line-height: 1.2;
+  letter-spacing: 1px;
 }
 
 .filter-card {
@@ -660,8 +755,8 @@ onMounted(() => {
 }
 
 .model-name {
-  font-weight: 500;
-  color: #303133;
+  font-weight: 400;
+  color: var(--dw-text);
 }
 
 .token-bar {
@@ -672,7 +767,7 @@ onMounted(() => {
 
 .token-text {
   font-size: 12px;
-  color: #606266;
+  color: var(--dw-text-secondary);
 }
 
 .token-info {
@@ -683,22 +778,47 @@ onMounted(() => {
 }
 
 .token-in {
-  color: #409EFF;
+  color: var(--dw-accent);
   font-weight: 500;
 }
 
 .token-out {
-  color: #67C23A;
+  color: var(--dw-highlight);
   font-weight: 500;
 }
 
 .token-separator {
-  color: #C0C4CC;
+  color: var(--dw-text-muted);
 }
 
 .pagination {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 覆盖标签样式以适配深色背景 */
+.provider-tag,
+.function-tag,
+.latency-tag {
+  background-color: var(--dw-interactive) !important;
+  border-color: var(--dw-border) !important;
+  color: var(--dw-text) !important;
+}
+
+.status-tag {
+  background-color: transparent !important;
+  border-color: var(--dw-border) !important;
+  color: var(--dw-text) !important;
+}
+
+.status-tag.success {
+  border-color: var(--dw-accent) !important;
+  color: var(--dw-accent) !important;
+}
+
+.status-tag.fail {
+  border-color: var(--dw-highlight) !important;
+  color: var(--dw-highlight) !important;
 }
 </style>
