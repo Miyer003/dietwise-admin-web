@@ -25,7 +25,6 @@
         <div class="header-right">
           <el-dropdown @command="handleCommand">
             <span class="user-info">
-              <span class="user-avatar">{{ authStore.userInfo?.avatarEmoji || '👤' }}</span>
               <span class="user-name">{{ authStore.userInfo?.nickname || '管理员' }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
@@ -103,6 +102,26 @@ const handleCommand = (command: string) => {
   background-color: transparent;
 }
 
+/* 导航项悬停动效：微微右移 + 上下线条变色，底色不变 */
+.menu .el-menu-item {
+  transition: all 0.3s ease;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.menu .el-menu-item:hover {
+  padding-left: 30px !important;
+  border-top-color: var(--dw-accent);
+  border-bottom-color: var(--dw-accent);
+  background-color: transparent !important;
+}
+
+.menu .el-menu-item.is-active {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  background-color: transparent !important;
+}
+
 .header {
   height: 70px;
   background-color: var(--dw-bg);
@@ -127,11 +146,6 @@ const handleCommand = (command: string) => {
 
 .user-info:hover {
   color: var(--dw-text);
-}
-
-.user-avatar {
-  font-size: 20px;
-  margin-right: 8px;
 }
 
 .user-name {
