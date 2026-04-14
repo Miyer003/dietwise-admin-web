@@ -5,6 +5,8 @@ export interface UserItem {
   phone: string
   nickname: string
   avatarEmoji: string
+  avatarUrl?: string
+  _imgError?: boolean
   role: string
   status: string
   createdAt: string
@@ -24,6 +26,8 @@ export interface UserDetail {
   email: string
   nickname: string
   avatarEmoji: string
+  avatarUrl?: string
+  _imgError?: boolean
   role: string
   status: string
   createdAt: string
@@ -66,6 +70,8 @@ export interface ActiveUserItem {
   phone: string
   nickname: string
   avatarEmoji: string
+  avatarUrl?: string
+  _imgError?: boolean
   createdAt: string
   lastLoginAt: string
   todayRecords: number

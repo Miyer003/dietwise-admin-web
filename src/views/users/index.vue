@@ -43,7 +43,8 @@
         <el-table-column label="用户" min-width="150">
           <template #default="{ row }">
             <div class="user-cell">
-              <span class="user-avatar">{{ row.avatarEmoji }}</span>
+              <img v-if="row.avatarUrl && !row._imgError" :src="row.avatarUrl" class="user-avatar-img" @error="row._imgError = true" />
+              <span v-if="!row.avatarUrl || row._imgError" class="user-avatar">{{ row.avatarEmoji || '😊' }}</span>
               <div class="user-info">
                 <div class="nickname">{{ row.nickname }}</div>
                 <div class="phone">{{ row.phone }}</div>
@@ -108,7 +109,8 @@
     <el-dialog v-model="detailVisible" title="用户详情" width="600px">
       <el-descriptions :column="2" border v-if="userDetail">
         <el-descriptions-item label="头像">
-          <span style="font-size: 32px">{{ userDetail.avatarEmoji }}</span>
+          <img v-if="userDetail.avatarUrl && !userDetail._imgError" :src="userDetail.avatarUrl" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" @error="userDetail._imgError = true" />
+          <span v-if="!userDetail.avatarUrl || userDetail._imgError" style="font-size: 32px">{{ userDetail.avatarEmoji || '😊' }}</span>
         </el-descriptions-item>
         <el-descriptions-item label="昵称">{{ userDetail.nickname }}</el-descriptions-item>
         <el-descriptions-item label="手机号">{{ userDetail.phone }}</el-descriptions-item>
@@ -146,7 +148,8 @@
         <el-table-column label="用户信息" min-width="200">
           <template #default="{ row }">
             <div class="user-cell">
-              <span class="user-avatar">{{ row.avatarEmoji || '😊' }}</span>
+              <img v-if="row.avatarUrl && !row._imgError" :src="row.avatarUrl" class="user-avatar-img" @error="row._imgError = true" />
+              <span v-if="!row.avatarUrl || row._imgError" class="user-avatar">{{ row.avatarEmoji || '😊' }}</span>
               <div class="user-info">
                 <div class="nickname">{{ row.nickname || '未设置昵称' }}</div>
                 <div class="phone">{{ row.phone }}</div>
@@ -357,6 +360,14 @@ onMounted(() => {
 
 .user-avatar {
   font-size: 32px;
+  margin-right: 12px;
+}
+
+.user-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
   margin-right: 12px;
 }
 
