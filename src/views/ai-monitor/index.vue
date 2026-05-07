@@ -302,7 +302,11 @@ const trendOption = ref({
       let result = `<strong>${date}</strong><br/>`
       params.forEach(item => {
         const unit = trendType.value === 'cost' ? '元' : trendType.value === 'success' ? '%' : '次'
-        result += `${item.marker} ${item.seriesName}: ${item.value}${unit}<br/>`
+        const value = item.value
+        const displayValue = value === null || value === undefined 
+          ? '无数据' 
+          : `${value}${unit}`
+        result += `${item.marker} ${item.seriesName}: ${displayValue}<br/>`
       })
       return result
     }

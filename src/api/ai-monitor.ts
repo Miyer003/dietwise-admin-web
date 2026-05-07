@@ -71,6 +71,7 @@ export interface AITrendItem {
   cost: number
   successCalls: number
   failCalls: number
+  successRate: number | null
 }
 
 export const getAIStatsByModel = (params?: { startDate?: string; endDate?: string }) => {
